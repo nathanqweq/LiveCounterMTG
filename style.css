@@ -89,6 +89,35 @@ input {
   background: #fff;
 }
 
+.color-picker {
+  margin: 10px 0 18px;
+}
+
+.color-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.color-swatch {
+  aspect-ratio: 1;
+  min-height: 54px;
+  padding: 0;
+  border-width: 3px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, var(--swatch-color) 100%);
+}
+
+.color-swatch:hover {
+  background: linear-gradient(180deg, #ffffff 0%, var(--swatch-color-strong) 100%);
+  transform: translateY(-1px);
+}
+
+.color-swatch.is-selected {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(16, 20, 24, 0.12);
+}
+
 .lobby-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -236,13 +265,13 @@ button:disabled {
   padding: 10px;
   border: 3px solid var(--line);
   border-radius: var(--card-radius);
-  background: rgba(255, 255, 255, 0.96);
+  background: linear-gradient(180deg, #ffffff 0%, var(--player-card-color, rgba(255, 255, 255, 0.96)) 100%);
   box-shadow: var(--shadow);
 }
 
 .counter-card--me {
   min-height: clamp(230px, 34dvh, 320px);
-  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
 }
 
 .counter-card--dead {

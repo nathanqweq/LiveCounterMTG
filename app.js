@@ -9,10 +9,44 @@ let lastSeenDeathEventId = null;
 const deathModal = document.getElementById("deathModal");
 const deathModalTitle = document.getElementById("deathModalTitle");
 const deathModalMessage = document.getElementById("deathModalMessage");
+const colorOptions = document.getElementById("colorOptions");
 const MAX_NAME_LENGTH = 24;
+const PLAYER_COLORS = [
+  { id: "sky", label: "Azul", card: "#dbeafe", strong: "#bfdbfe" },
+  { id: "mint", label: "Menta", card: "#d1fae5", strong: "#a7f3d0" },
+  { id: "sun", label: "Amarelo", card: "#fef3c7", strong: "#fde68a" },
+  { id: "rose", label: "Rosa", card: "#fce7f3", strong: "#fbcfe8" },
+  { id: "peach", label: "Pessego", card: "#ffedd5", strong: "#fed7aa" },
+  { id: "lavender", label: "Lavanda", card: "#ede9fe", strong: "#ddd6fe" },
+  { id: "teal", label: "Petroleo", card: "#ccfbf1", strong: "#99f6e4" },
+  { id: "lime", label: "Lima", card: "#ecfccb", strong: "#d9f99d" },
+  { id: "coral", label: "Coral", card: "#fecdd3", strong: "#fda4af" },
+  { id: "stone", label: "Areia", card: "#e7e5e4", strong: "#d6d3d1" }
+];
+let selectedColorId = PLAYER_COLORS[0].id;
 
 function normalizePlayerName(value) {
   return value.trim().slice(0, MAX_NAME_LENGTH);
+}
+
+function getPlayerColor(colorId) {
+  return PLAYER_COLORS.find((color) => color.id === colorId) || PLAYER_COLORS[0];
+}
+
+function renderColorOptions() {
+  if (!colorOptions) return;
+
+  colorOptions.innerHTML = PLAYER_COLORS.map((color) => `
+    <button
+      type="button"
+      class="color-swatch${selectedColorId === color.id ? " is-selected" : ""}"
+      style="--swatch-color: ${color.card}; --swatch-color-strong: ${color.strong};"
+      title="${color.label}"
+      aria-label="Escolher cor ${color.label}"
+      aria-pressed="${selectedColorId === color.id}"
+      onclick="selectPlayerColor('${color.id}')"
+    ></button>
+  `).join("");
 }
 
 function updateLobbyButtons() {
@@ -128,6 +162,11 @@ window.closeDeathModal = function () {
   deathModal.setAttribute("aria-hidden", "true");
 };
 
+window.selectPlayerColor = function (colorId) {
+  selectedColorId = getPlayerColor(colorId).id;
+  renderColorOptions();
+};
+
 function initLobby() {
   const nameInput = document.getElementById("name");
   const roomInput = document.getElementById("room");
@@ -136,6 +175,7 @@ function initLobby() {
 
   nameInput.addEventListener("input", updateLobbyButtons);
   roomInput.addEventListener("input", updateLobbyButtons);
+  renderColorOptions();
   updateLobbyButtons();
 }
 
@@ -160,6 +200,7 @@ function start(name) {
   player = {
     id: Math.random().toString(36).substring(2),
     name,
+    colorId: selectedColorId,
     life: 40,
     dead: false,
     commanderDamageDealt: {},
@@ -242,6 +283,7 @@ function renderAllPlayers() {
 
 function renderPlayerCard(target, isCurrentPlayer) {
   const dead = isPlayerDead(target);
+  const playerColor = getPlayerColor(target.colorId);
   const commanderDamageFromMe = target.commanderDamageReceived?.[player.id] || 0;
   const commanderDamageSummary = isCurrentPlayer
     ? Object.entries(target.commanderDamageReceived || {})
@@ -275,7 +317,10 @@ function renderPlayerCard(target, isCurrentPlayer) {
   }
 
   return `
-    <section class="counter-card${isCurrentPlayer ? " counter-card--me" : ""}${dead ? " counter-card--dead" : ""}">
+    <section
+      class="counter-card${isCurrentPlayer ? " counter-card--me" : ""}${dead ? " counter-card--dead" : ""}"
+      style="${dead ? "" : `--player-card-color: ${playerColor.card};`}"
+    >
       <div class="counter-card__top">
         <span class="counter-card__name">${target.name}</span>
         <span class="counter-card__status">${dead ? "Morto" : isCurrentPlayer ? "Voce" : "Ativo"}</span>
