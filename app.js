@@ -109,6 +109,12 @@ function listenRoom() {
     if (!data) return;
 
     players = data;
+    if (player?.id && players[player.id]) {
+      player = {
+        ...player,
+        ...players[player.id]
+      };
+    }
     renderAllPlayers();
   });
 }
@@ -239,16 +245,17 @@ window.dealCommanderDamage = function (targetId, amount) {
 
 // Atualiza so o seu player.
 window.changeLife = function (val) {
-  if (isPlayerDead(player)) return;
+  const currentPlayer = players[player.id] || player;
+  if (isPlayerDead(currentPlayer)) return;
 
-  player.life += val;
-  const currentLife = Math.max(player.life, 0);
+  const currentLife = Math.max((currentPlayer.life || 0) + val, 0);
   const playerIsDead = currentLife <= 0;
 
   player.life = currentLife;
+  player.dead = playerIsDead;
 
   update(ref(db, `rooms/${roomId}/players/${player.id}`), {
-    life: player.life,
+    life: currentLife,
     dead: playerIsDead
   });
 
