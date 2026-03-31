@@ -3,17 +3,33 @@ import { db, ref, set, onValue, update } from "./firebase.js";
 let player = null;
 let roomId = null;
 let players = {};
+let deathEventReady = false;
+let lastSeenDeathEventId = null;
+
+const deathModal = document.getElementById("deathModal");
+const deathModalTitle = document.getElementById("deathModalTitle");
+const deathModalMessage = document.getElementById("deathModalMessage");
+const MAX_NAME_LENGTH = 24;
+
+function normalizePlayerName(value) {
+  return value.trim().slice(0, MAX_NAME_LENGTH);
+}
 
 function updateLobbyButtons() {
-  const name = document.getElementById("name")?.value.trim() || "";
+  const nameInput = document.getElementById("name");
+  const normalizedName = normalizePlayerName(nameInput?.value || "");
   const room = document.getElementById("room")?.value.trim() || "";
   const createRoomButton = document.getElementById("createRoomButton");
   const joinRoomButton = document.getElementById("joinRoomButton");
 
+  if (nameInput && nameInput.value !== normalizedName) {
+    nameInput.value = normalizedName;
+  }
+
   if (!createRoomButton || !joinRoomButton) return;
 
-  const canCreate = Boolean(name);
-  const canJoin = Boolean(name && room);
+  const canCreate = Boolean(normalizedName);
+  const canJoin = Boolean(normalizedName && room);
 
   createRoomButton.disabled = !canCreate;
   joinRoomButton.disabled = !canJoin;
@@ -55,6 +71,63 @@ function updatePlayerLife(targetId, nextLife, extraData = {}) {
   return targetIsDead;
 }
 
+function buildDeathEvent(target, reason) {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    killerId: player?.id || null,
+    killerName: player?.name || "Desconhecido",
+    victimId: target.id,
+    victimName: target.name,
+    reason,
+    createdAt: Date.now()
+  };
+}
+
+function publishDeathEvent(target, reason) {
+  const deathEvent = buildDeathEvent(target, reason);
+
+  lastSeenDeathEventId = deathEvent.id;
+  set(ref(db, `rooms/${roomId}/events/lastDeath`), deathEvent);
+  showDeathModalForEvent(deathEvent);
+}
+
+function showDeathModal(title, message) {
+  if (!deathModal || !deathModalTitle || !deathModalMessage) return;
+
+  deathModalTitle.textContent = title;
+  deathModalMessage.textContent = message;
+  deathModal.classList.remove("hidden");
+  deathModal.setAttribute("aria-hidden", "false");
+}
+
+function showDeathModalForEvent(deathEvent) {
+  if (!player || !deathEvent) return;
+
+  if (deathEvent.victimId === player.id) {
+    const message = deathEvent.killerId && deathEvent.killerId !== player.id
+      ? `${deathEvent.killerName} te matou${deathEvent.reason === "commander" ? " com dano de comandante." : "."}`
+      : "Voce foi eliminado.";
+
+    showDeathModal("Voce morreu", message);
+    return;
+  }
+
+  if (deathEvent.killerId === player.id) {
+    const message = deathEvent.reason === "commander"
+      ? `Voce matou ${deathEvent.victimName} com dano de comandante.`
+      : `Voce matou ${deathEvent.victimName}.`;
+
+    showDeathModal("Eliminacao confirmada", message);
+  }
+}
+
+window.closeDeathModal = function () {
+  if (!deathModal) return;
+
+  deathModal.classList.add("hidden");
+  deathModal.setAttribute("aria-hidden", "true");
+};
+
 function initLobby() {
   const nameInput = document.getElementById("name");
   const roomInput = document.getElementById("room");
@@ -67,7 +140,7 @@ function initLobby() {
 }
 
 window.createRoom = function () {
-  const name = document.getElementById("name").value.trim();
+  const name = normalizePlayerName(document.getElementById("name").value);
   if (!name) return;
 
   roomId = generateCode();
@@ -75,7 +148,7 @@ window.createRoom = function () {
 };
 
 window.joinRoom = function () {
-  const name = document.getElementById("name").value.trim();
+  const name = normalizePlayerName(document.getElementById("name").value);
   const room = document.getElementById("room").value.trim().toUpperCase();
   if (!name || !room) return;
 
@@ -100,6 +173,7 @@ function start(name) {
   set(ref(db, `rooms/${roomId}/players/${player.id}`), player);
 
   listenRoom();
+  listenDeathEvents();
 }
 
 // Escuta todos os players da sala.
@@ -116,6 +190,26 @@ function listenRoom() {
       };
     }
     renderAllPlayers();
+  });
+}
+
+function listenDeathEvents() {
+  deathEventReady = false;
+  lastSeenDeathEventId = null;
+
+  onValue(ref(db, `rooms/${roomId}/events/lastDeath`), (snap) => {
+    const deathEvent = snap.val();
+
+    if (!deathEventReady) {
+      deathEventReady = true;
+      lastSeenDeathEventId = deathEvent?.id || null;
+      return;
+    }
+
+    if (!deathEvent?.id || deathEvent.id === lastSeenDeathEventId) return;
+
+    lastSeenDeathEventId = deathEvent.id;
+    showDeathModalForEvent(deathEvent);
   });
 }
 
@@ -214,7 +308,7 @@ window.dealDamage = function (targetId, amount) {
   const targetIsDead = updatePlayerLife(targetId, target.life - amount);
 
   if (targetIsDead) {
-    alert(`${target.name} morreu!`);
+    publishDeathEvent(target, "normal");
   }
 };
 
@@ -233,7 +327,7 @@ window.dealCommanderDamage = function (targetId, amount) {
   }) || commanderResult.diedFromCommander;
 
   if (targetIsDead) {
-    alert(`${target.name} perdeu por dano de comandante!`);
+    publishDeathEvent(target, "commander");
   }
 
   if (commanderResult.diedFromCommander) {
@@ -260,8 +354,14 @@ window.changeLife = function (val) {
   });
 
   if (playerIsDead) {
-    alert("Voce morreu!");
+    showDeathModal("Voce morreu", "Voce foi eliminado.");
   }
 };
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    window.closeDeathModal();
+  }
+});
 
 initLobby();

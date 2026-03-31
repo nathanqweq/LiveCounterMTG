@@ -16,7 +16,7 @@
       <h1>Commander Tracker</h1>
       <p class="hero-copy">Entre em uma sala, acompanhe a mesa e controle vida com uma interface mais limpa para partidas de Commander.</p>
 
-      <input id="name" placeholder="Seu nome" />
+      <input id="name" maxlength="24" placeholder="Seu nome" />
       <input id="room" placeholder="ID da sala" />
 
       <div class="lobby-actions">
@@ -30,6 +30,16 @@
     <div class="top">
       Sala: <span id="roomCode"></span>
     </div>
+  </div>
+
+  <div id="deathModal" class="modal hidden" aria-hidden="true">
+    <div class="modal__backdrop" onclick="closeDeathModal()"></div>
+    <section class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="deathModalTitle">
+      <p class="eyebrow">Eliminacao</p>
+      <h2 id="deathModalTitle" class="modal__title"></h2>
+      <p id="deathModalMessage" class="modal__message"></p>
+      <button class="modal__button" onclick="closeDeathModal()">Fechar</button>
+    </section>
   </div>
 
   <script type="module" src="app.js"></script>
