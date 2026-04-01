@@ -27,6 +27,10 @@
         <button id="createRoomButton" onclick="createRoom()">Criar Sala</button>
         <button id="joinRoomButton" onclick="joinRoom()">Entrar na Sala</button>
       </div>
+
+      <button id="singleDeviceModeButton" class="single-device-button" onclick="startSingleDeviceMode()">
+        Modo Um Celular
+      </button>
     </div>
   </div>
 
@@ -46,6 +50,48 @@
     </section>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <div id="renamePlayerModal" class="modal hidden" aria-hidden="true">
+    <div class="modal__backdrop" onclick="closeRenamePlayerModal()"></div>
+    <section class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="renamePlayerModalTitle">
+      <p class="eyebrow">Modo Um Celular</p>
+      <h2 id="renamePlayerModalTitle" class="modal__title">Alterar nome</h2>
+      <p class="modal__message">Escolha um nome novo para esse jogador.</p>
+      <input id="renamePlayerInput" class="modal__input" maxlength="24" placeholder="Nome do jogador" />
+      <div class="modal__actions">
+        <button class="modal__button modal__button--secondary" type="button" onclick="closeRenamePlayerModal()">Cancelar</button>
+        <button class="modal__button" type="button" onclick="submitRenamePlayer()">Salvar</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <button
+      id="newsButton"
+      class="footer-news-button"
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      onclick="openNewsModal()"
+    >
+      <span>Novidades</span>
+      <span id="newsBadge" class="footer-news-button__badge" aria-hidden="true"></span>
+    </button>
+  </footer>
+
+  <div id="newsModal" class="modal hidden" aria-hidden="true">
+    <div class="modal__backdrop" onclick="closeNewsModal()"></div>
+    <section class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="newsModalTitle">
+      <p class="eyebrow">Atualizacao</p>
+      <h2 id="newsModalTitle" class="modal__title">Novidades do Live Counter</h2>
+      <div class="modal__news-list">
+        <p><strong>01/04/2026</strong><br />Modo Um Celular agora permite adicionar ate 4 jogadores, editar nomes e controlar dano de comandante por jogador.</p>
+        <p><strong>31/03/2026</strong><br />Eliminacoes agora mostram um aviso em modal para quem matou ou morreu.</p>
+        <p><strong>31/03/2026</strong><br />Escolha uma cor para se destacar melhor na mesa.</p>
+      </div>
+      <button class="modal__button" type="button" onclick="closeNewsModal()">Fechar</button>
+    </section>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

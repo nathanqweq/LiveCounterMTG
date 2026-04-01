@@ -124,6 +124,17 @@ input {
   gap: 10px;
 }
 
+.single-device-button {
+  margin-top: 10px;
+  background: #fff7ed;
+  border-color: #c2410c;
+  color: #9a3412;
+}
+
+.single-device-button:hover {
+  background: #ffedd5;
+}
+
 button {
   padding: 14px 16px;
   font-weight: 700;
@@ -163,6 +174,48 @@ button:disabled {
 
 .hidden {
   display: none;
+}
+
+.site-footer {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 40;
+}
+
+body.is-in-game .site-footer {
+  display: none;
+}
+
+.footer-news-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: auto;
+  min-width: 152px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+}
+
+.footer-news-button:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.footer-news-button__badge {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #7f1d1d;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16);
+}
+
+.footer-news-button--unread {
+  border-color: #b91c1c;
 }
 
 .modal {
@@ -219,6 +272,43 @@ button:disabled {
   background: var(--accent-strong);
 }
 
+.modal__button--secondary {
+  background: #ffffff;
+}
+
+.modal__button--secondary:hover {
+  background: #f8fafc;
+}
+
+.modal__input {
+  margin-top: 18px;
+  margin-bottom: 0;
+}
+
+.modal__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.modal__news-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.modal__news-list p {
+  margin: 0;
+  padding: 12px 14px;
+  border: 2px solid rgba(17, 17, 17, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
 #game {
   min-height: 100dvh;
   padding: var(--page-padding);
@@ -229,6 +319,10 @@ button:disabled {
   grid-template-rows: var(--hud-height) auto minmax(0, 1fr);
   gap: var(--board-gap);
   min-height: calc(100dvh - (var(--page-padding) * 2));
+}
+
+.board--local {
+  grid-template-rows: var(--hud-height) minmax(0, 1fr);
 }
 
 .board__hud {
@@ -292,6 +386,20 @@ button:disabled {
   font-weight: 700;
 }
 
+.counter-card__name-button {
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.counter-card__name-button:hover {
+  background: transparent;
+  text-decoration: underline;
+}
+
 .counter-card__status {
   color: var(--muted);
 }
@@ -349,6 +457,22 @@ button:disabled {
   justify-content: center;
 }
 
+.counter-card__actions--local {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.local-commander-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.counter-button--commander {
+  min-height: 42px;
+  font-size: 0.82rem;
+}
+
 .counter-button,
 .counter-card__empty {
   display: inline-flex;
@@ -401,6 +525,48 @@ button:disabled {
   grid-column: 1 / -1;
 }
 
+.local-grid {
+  align-content: stretch;
+}
+
+.local-player-card {
+  min-height: clamp(220px, 30dvh, 300px);
+}
+
+.add-player-slot {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: clamp(220px, 30dvh, 300px);
+  border: 3px dashed var(--line);
+  border-radius: var(--card-radius);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow);
+}
+
+.add-player-slot:hover {
+  background: #ffffff;
+}
+
+.add-player-slot__plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: var(--accent);
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.add-player-slot__label {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
 @media (max-width: 430px) {
   :root {
     --page-padding: 10px;
@@ -408,6 +574,17 @@ button:disabled {
     --hud-height: 56px;
     --name-size: 0.98rem;
     --meta-size: 0.84rem;
+  }
+
+  .site-footer {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .footer-news-button {
+    width: 100%;
+    min-width: 0;
   }
 }
 
